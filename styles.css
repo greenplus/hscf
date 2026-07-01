@@ -65,8 +65,8 @@ input {
   align-items: end;
   display: grid;
   gap: 0.75rem;
-  grid-template-columns: minmax(9rem, 12rem) minmax(16rem, 28rem) auto;
-  width: min(100%, 48rem);
+  grid-template-columns: minmax(9rem, 14rem) auto;
+  width: min(100%, 22rem);
 }
 
 .connection label {
@@ -175,9 +175,27 @@ input {
   margin-bottom: 0.5rem;
 }
 
+.game-controls {
+  align-items: center;
+  display: flex;
+  gap: 1rem;
+}
+
 .game-summary span {
   color: #5d5146;
   margin-left: 0.75rem;
+}
+
+.setting-toggle {
+  align-items: center;
+  color: #4d463e;
+  display: flex;
+  gap: 0.4rem;
+  white-space: nowrap;
+}
+
+.setting-toggle input {
+  width: auto;
 }
 
 .message-line {
@@ -191,65 +209,97 @@ input {
 
 .board {
   --board-size: 19;
+  --board-margin: 6%;
   aspect-ratio: 1;
-  background:
-    linear-gradient(#7d6040 1px, transparent 1px),
-    linear-gradient(90deg, #7d6040 1px, transparent 1px),
-    #d6a35f;
-  background-size:
-    calc(100% / var(--board-size)) calc(100% / var(--board-size)),
-    calc(100% / var(--board-size)) calc(100% / var(--board-size));
+  background: #d6a35f;
   border: 2px solid #6a4a28;
-  display: grid;
-  gap: 0;
-  grid-template-columns: repeat(var(--board-size), 1fr);
   max-height: calc(100vh - 12rem);
   max-width: min(100%, calc(100vh - 12rem));
   min-height: 20rem;
   position: relative;
 }
 
+.board-grid,
+.board-points {
+  inset: var(--board-margin);
+  position: absolute;
+}
+
+.board-line {
+  background: #6f4f2b;
+  position: absolute;
+}
+
+.board-line.vertical {
+  bottom: 0;
+  top: 0;
+  transform: translateX(-0.5px);
+  width: 1px;
+}
+
+.board-line.horizontal {
+  height: 1px;
+  left: 0;
+  right: 0;
+  transform: translateY(-0.5px);
+}
+
 .cell {
   align-items: center;
   background: transparent;
   border: 0;
-  border-radius: 0;
+  border-radius: 999px;
   display: flex;
+  height: calc(100% / var(--board-size));
   justify-content: center;
-  min-height: 0;
   padding: 0;
-  position: relative;
+  position: absolute;
+  transform: translate(-50%, -50%);
+  width: calc(100% / var(--board-size));
 }
 
 .cell:hover {
-  background: rgb(255 255 255 / 0.18);
+  background: rgb(255 255 255 / 0.2);
 }
 
 .cell::before {
   border-radius: 999px;
   content: "";
-  height: 72%;
-  width: 72%;
+  display: none;
+  height: 86%;
+  width: 86%;
 }
 
 .cell.black::before {
-  background: radial-gradient(circle at 35% 30%, #555, #050505 68%);
-  box-shadow: 0 1px 2px rgb(0 0 0 / 0.5);
+  background: #111;
+  box-shadow: 0 0 0 1px #000;
+  display: block;
 }
 
 .cell.white::before {
-  background: radial-gradient(circle at 35% 30%, #fff, #d9d9d9 70%);
-  border: 1px solid #b0b0b0;
-  box-shadow: 0 1px 2px rgb(0 0 0 / 0.3);
+  background: #f5f5f5;
+  box-shadow: 0 0 0 1px #777;
+  display: block;
+}
+
+.cell.last::after,
+.cell.pending::after {
+  border-radius: 999px;
+  content: "";
+  pointer-events: none;
+  position: absolute;
 }
 
 .cell.last::after {
   border: 2px solid #db2a1f;
-  border-radius: 999px;
-  content: "";
-  height: 34%;
-  position: absolute;
-  width: 34%;
+  height: 42%;
+  width: 42%;
+}
+
+.cell.pending::after {
+  border: 2px solid #2563eb;
+  height: 86%;
+  width: 86%;
 }
 
 .move-log {
@@ -269,6 +319,12 @@ input {
   .connection,
   .layout {
     grid-template-columns: 1fr;
+  }
+
+  .game-summary,
+  .game-controls {
+    align-items: start;
+    display: grid;
   }
 
   .board {

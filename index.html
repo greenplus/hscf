@@ -18,10 +18,6 @@
             名前
             <input id="nameInput" maxlength="24" autocomplete="nickname" placeholder="プレイヤー名">
           </label>
-          <label>
-            WebSocket URL
-            <input id="serverUrlInput" inputmode="url" placeholder="wss://your-server.example.com/ws">
-          </label>
           <button id="connectButton">接続</button>
         </div>
       </section>
@@ -64,7 +60,13 @@
               <strong id="turnLabel">手番: -</strong>
               <span id="myColorLabel">あなた: -</span>
             </div>
-            <div id="scoreLabel">黒 0 / 白 2</div>
+            <div class="game-controls">
+              <label class="setting-toggle">
+                <input id="doubleClickToggle" type="checkbox">
+                ダブルクリック着手
+              </label>
+              <div id="scoreLabel">黒 0 / 白 2</div>
+            </div>
           </div>
           <div id="messageLine" class="message-line">サーバーに接続してください。</div>
           <div id="board" class="board" aria-label="19路盤"></div>

@@ -5,8 +5,8 @@ const $ = (selector) => document.querySelector(selector);
 const els = {
   connectionStatus: $("#connectionStatus"),
   nameInput: $("#nameInput"),
-  serverUrlInput: $("#serverUrlInput"),
   connectButton: $("#connectButton"),
+  doubleClickToggle: $("#doubleClickToggle"),
   refreshRoomsButton: $("#refreshRoomsButton"),
   roomList: $("#roomList"),
   leaveRoomButton: $("#leaveRoomButton"),
@@ -31,11 +31,13 @@ const colorLabel = {
 
 const LOCAL_WS_URL = "ws://localhost:8000/ws";
 const PRODUCTION_WS_URL = "wss://web-production-801d2.up.railway.app/ws";
+const DOUBLE_CLICK_STORAGE_KEY = "subspace-gomoku-double-click";
 
 let client = null;
 let latestGame = null;
 let latestRoomStatus = null;
 let myPrivateState = {};
+let pendingPoint = null;
 
 function isLocalEnvironment() {
   if (location.hostname === "localhost" || location.hostname === "127.0.0.1") {
@@ -46,9 +48,17 @@ function isLocalEnvironment() {
 
 function defaultWsUrl() {
   if (isLocalEnvironment()) {
-    return localStorage.getItem("subspace-gomoku-ws-url") || LOCAL_WS_URL;
+    return LOCAL_WS_URL;
   }
   return PRODUCTION_WS_URL;
+}
+
+function useDoubleClickPlacement() {
+  return els.doubleClickToggle.checked;
+}
+
+function pointKey(row, col) {
+  return `${row},${col}`;
 }
 
 function setMessage(message) {
@@ -115,9 +125,25 @@ function renderBoard(game = latestGame) {
   const board = game?.board || [];
   const size = game?.board_size || 19;
   const last = game?.last_move;
-  const captured = new Set((game?.captured_last_move || []).map((point) => `${point.row},${point.col}`));
+  const captured = new Set((game?.captured_last_move || []).map((point) => pointKey(point.row, point.col)));
   els.board.style.setProperty("--board-size", String(size));
   els.board.replaceChildren();
+
+  const grid = document.createElement("div");
+  grid.className = "board-grid";
+  for (let index = 0; index < size; index += 1) {
+    const position = `${(index / (size - 1)) * 100}%`;
+    const vertical = document.createElement("span");
+    vertical.className = "board-line vertical";
+    vertical.style.left = position;
+    const horizontal = document.createElement("span");
+    horizontal.className = "board-line horizontal";
+    horizontal.style.top = position;
+    grid.append(vertical, horizontal);
+  }
+
+  const points = document.createElement("div");
+  points.className = "board-points";
 
   for (let row = 0; row < size; row += 1) {
     for (let col = 0; col < size; col += 1) {
@@ -128,23 +154,46 @@ function renderBoard(game = latestGame) {
       cell.title = `${row + 1}, ${col + 1}`;
       cell.dataset.row = String(row);
       cell.dataset.col = String(col);
+      cell.style.left = `${(col / (size - 1)) * 100}%`;
+      cell.style.top = `${(row / (size - 1)) * 100}%`;
       if (last && last.row === row && last.col === col) {
         cell.classList.add("last");
       }
-      if (captured.has(`${row},${col}`)) {
+      if (captured.has(pointKey(row, col))) {
         cell.classList.add("captured");
+      }
+      if (pendingPoint?.row === row && pendingPoint?.col === col) {
+        cell.classList.add("pending");
       }
       cell.addEventListener("click", () => {
         if (!client) return;
+        if (value) {
+          setMessage("その交点にはすでに石があります。");
+          return;
+        }
+        if (useDoubleClickPlacement()) {
+          if (pendingPoint?.row === row && pendingPoint?.col === col) {
+            pendingPoint = null;
+            client.sendAction("place", {row, col});
+          } else {
+            pendingPoint = {row, col};
+            setMessage("もう一度同じ交点をクリックすると着手します。");
+            renderBoard(latestGame);
+          }
+          return;
+        }
         client.sendAction("place", {row, col});
       });
-      els.board.append(cell);
+      points.append(cell);
     }
   }
+
+  els.board.append(grid, points);
 }
 
 function renderGame(msg) {
   latestGame = msg.game || latestGame;
+  pendingPoint = null;
   const game = latestGame;
   renderBoard(game);
 
@@ -171,15 +220,7 @@ function renderGame(msg) {
 }
 
 function connect() {
-  const url = isLocalEnvironment() ? els.serverUrlInput.value.trim() : PRODUCTION_WS_URL;
-  if (!url) {
-    setMessage("WebSocket URL を入力してください。");
-    return;
-  }
-
-  if (isLocalEnvironment()) {
-    localStorage.setItem("subspace-gomoku-ws-url", url);
-  }
+  const url = defaultWsUrl();
   client = createOnlineClient({
     url,
     renderers: {
@@ -228,10 +269,12 @@ function connect() {
       },
       actionResult(msg) {
         if (msg.result?.ok) {
+          pendingPoint = null;
           setMessage("着手しました。");
         }
       },
       gameOver(msg) {
+        pendingPoint = null;
         if (msg.game) renderGame({game: msg.game});
         setMessage(msg.winner ? `${msg.winner} の勝ちです。${msg.reason || ""}` : `対局終了。${msg.reason || ""}`);
       },
@@ -246,11 +289,7 @@ function connect() {
   client.connect();
 }
 
-els.serverUrlInput.value = defaultWsUrl();
-if (!isLocalEnvironment()) {
-  els.serverUrlInput.readOnly = true;
-  els.serverUrlInput.title = "本番環境では固定の Railway サーバーに接続します。";
-}
+els.doubleClickToggle.checked = localStorage.getItem(DOUBLE_CLICK_STORAGE_KEY) !== "false";
 renderBoard({board_size: 19, board: Array.from({length: 19}, () => Array(19).fill(null))});
 
 els.connectButton.addEventListener("click", connect);
@@ -266,6 +305,11 @@ els.leaveRoomButton.addEventListener("click", () => {
 });
 els.participationButton.addEventListener("click", () => client?.toggleParticipation());
 els.startGameButton.addEventListener("click", () => client?.startGame());
+els.doubleClickToggle.addEventListener("change", () => {
+  pendingPoint = null;
+  localStorage.setItem(DOUBLE_CLICK_STORAGE_KEY, String(els.doubleClickToggle.checked));
+  renderBoard(latestGame);
+});
 els.nameInput.addEventListener("change", () => {
   if (client) client.setName(els.nameInput.value.trim());
 });
