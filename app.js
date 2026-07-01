@@ -1,4 +1,4 @@
-import {createOnlineClient} from "./online_client.js?v=20260701-4";
+import {createOnlineClient} from "./online_client.js?v=20260701-6";
 
 const $ = (selector) => document.querySelector(selector);
 

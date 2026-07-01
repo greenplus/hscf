@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>亜空間五目 オンライン対戦</title>
-    <link rel="stylesheet" href="./styles.css?v=20260701-4">
+    <link rel="stylesheet" href="./styles.css?v=20260701-6">
   </head>
   <body>
     <main class="app">
@@ -12,6 +12,15 @@
         <div>
           <h1>亜空間五目</h1>
           <p id="connectionStatus">未接続</p>
+          <details class="rules-disclosure">
+            <summary>ルール説明</summary>
+            <div class="rules-text">
+              <p>亜空間五目は、19路盤で遊ぶ2人対戦ゲームです。黒から交互に石を置き、タテ・ヨコ・ナナメのいずれかの方向に、等間隔で5個の石を並べると勝ちです。</p>
+              <p>ただし、通常の五目並べのような隣り合った連続5個は勝ちになりません。1マス飛ばし、桂馬飛びのような間隔など、盤上に収まるさまざまなベクトル方向で「等間隔の5個」を作るのが目的です。</p>
+              <p>相手の石が同じ間隔で2個並んでいるとき、その両端を自分の石で挟むと、その2個を取ることができます。取った石はアゲハマとして数え、10個取っても勝ちです。</p>
+              <p>後手の白はコミとして、最初からアゲハマ2個を持った状態で始まります。三々禁止など、一般的な五目並べの特殊禁手はありません。</p>
+            </div>
+          </details>
         </div>
         <div class="connection">
           <label>
@@ -74,6 +83,6 @@
       </section>
     </main>
 
-    <script type="module" src="./app.js?v=20260701-4"></script>
+    <script type="module" src="./app.js?v=20260701-6"></script>
   </body>
 </html>

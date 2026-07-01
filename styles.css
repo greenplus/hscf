@@ -19,12 +19,16 @@ input {
 }
 
 button {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
   border: 1px solid #2a2a2a;
   border-radius: 6px;
   background: #fffaf0;
   color: #202020;
   cursor: pointer;
   padding: 0.55rem 0.75rem;
+  touch-action: manipulation;
+  user-select: none;
 }
 
 button:hover {
@@ -59,6 +63,33 @@ input {
 
 .topbar p {
   margin: 0.25rem 0 0;
+}
+
+.rules-disclosure {
+  margin-top: 0.6rem;
+  max-width: 48rem;
+}
+
+.rules-disclosure summary {
+  cursor: pointer;
+  display: inline-block;
+  font-weight: 700;
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+}
+
+.rules-text {
+  color: #fff8eb;
+  display: grid;
+  gap: 0.45rem;
+  line-height: 1.55;
+  margin-top: 0.55rem;
+}
+
+.rules-text p {
+  margin: 0;
 }
 
 .connection {
@@ -210,6 +241,8 @@ input {
 .board {
   --board-size: 19;
   --board-margin: 6%;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
   aspect-ratio: 1;
   background: #d6a35f;
   border: 2px solid #6a4a28;
@@ -217,6 +250,8 @@ input {
   max-width: min(100%, calc(100vh - 12rem));
   min-height: 20rem;
   position: relative;
+  touch-action: manipulation;
+  user-select: none;
 }
 
 .board-grid,
@@ -245,6 +280,8 @@ input {
 }
 
 .cell {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
   align-items: center;
   background: transparent;
   border: 0;
@@ -254,7 +291,9 @@ input {
   justify-content: center;
   padding: 0;
   position: absolute;
+  touch-action: manipulation;
   transform: translate(-50%, -50%);
+  user-select: none;
   width: calc(100% / var(--board-size));
 }
 
