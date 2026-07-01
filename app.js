@@ -29,18 +29,26 @@ const colorLabel = {
   white: "白",
 };
 
+const LOCAL_WS_URL = "ws://localhost:8000/ws";
+const PRODUCTION_WS_URL = "wss://web-production-801d2.up.railway.app/ws";
+
 let client = null;
 let latestGame = null;
 let latestRoomStatus = null;
 let myPrivateState = {};
 
-function defaultWsUrl() {
-  const saved = localStorage.getItem("subspace-gomoku-ws-url");
-  if (saved) return saved;
+function isLocalEnvironment() {
   if (location.hostname === "localhost" || location.hostname === "127.0.0.1") {
-    return "ws://localhost:8000/ws";
+    return true;
   }
-  return "";
+  return location.protocol === "file:";
+}
+
+function defaultWsUrl() {
+  if (isLocalEnvironment()) {
+    return localStorage.getItem("subspace-gomoku-ws-url") || LOCAL_WS_URL;
+  }
+  return PRODUCTION_WS_URL;
 }
 
 function setMessage(message) {
@@ -163,13 +171,15 @@ function renderGame(msg) {
 }
 
 function connect() {
-  const url = els.serverUrlInput.value.trim();
+  const url = isLocalEnvironment() ? els.serverUrlInput.value.trim() : PRODUCTION_WS_URL;
   if (!url) {
     setMessage("WebSocket URL を入力してください。");
     return;
   }
 
-  localStorage.setItem("subspace-gomoku-ws-url", url);
+  if (isLocalEnvironment()) {
+    localStorage.setItem("subspace-gomoku-ws-url", url);
+  }
   client = createOnlineClient({
     url,
     renderers: {
@@ -237,6 +247,10 @@ function connect() {
 }
 
 els.serverUrlInput.value = defaultWsUrl();
+if (!isLocalEnvironment()) {
+  els.serverUrlInput.readOnly = true;
+  els.serverUrlInput.title = "本番環境では固定の Railway サーバーに接続します。";
+}
 renderBoard({board_size: 19, board: Array.from({length: 19}, () => Array(19).fill(null))});
 
 els.connectButton.addEventListener("click", connect);
