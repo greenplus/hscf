@@ -1,0 +1,279 @@
+:root {
+  color-scheme: light;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: #f4f1ea;
+  color: #202020;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+button {
+  border: 1px solid #2a2a2a;
+  border-radius: 6px;
+  background: #fffaf0;
+  color: #202020;
+  cursor: pointer;
+  padding: 0.55rem 0.75rem;
+}
+
+button:hover {
+  background: #fff0c8;
+}
+
+input {
+  border: 1px solid #8a8174;
+  border-radius: 6px;
+  padding: 0.55rem 0.65rem;
+  width: 100%;
+}
+
+.app {
+  min-height: 100vh;
+}
+
+.topbar {
+  align-items: end;
+  background: #28231d;
+  color: #fff8eb;
+  display: flex;
+  gap: 1rem;
+  justify-content: space-between;
+  padding: 1rem clamp(1rem, 4vw, 2rem);
+}
+
+.topbar h1 {
+  font-size: clamp(1.5rem, 3vw, 2.2rem);
+  margin: 0;
+}
+
+.topbar p {
+  margin: 0.25rem 0 0;
+}
+
+.connection {
+  align-items: end;
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: minmax(9rem, 12rem) minmax(16rem, 28rem) auto;
+  width: min(100%, 48rem);
+}
+
+.connection label {
+  display: grid;
+  gap: 0.25rem;
+  font-size: 0.86rem;
+}
+
+.layout {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: minmax(17rem, 22rem) minmax(0, 1fr);
+  padding: 1rem clamp(1rem, 4vw, 2rem) 2rem;
+}
+
+.sidebar {
+  display: grid;
+  gap: 1rem;
+}
+
+.panel {
+  background: #fffdf8;
+  border: 1px solid #d2c7b4;
+  border-radius: 8px;
+  padding: 0.85rem;
+}
+
+.panel h2 {
+  font-size: 1rem;
+  margin: 0;
+}
+
+.panel-header {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+}
+
+.room-list,
+.player-list {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.room-button,
+.player-row {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+}
+
+.room-button {
+  text-align: left;
+}
+
+.room-button small,
+.player-row small {
+  color: #665d52;
+}
+
+.room-actions {
+  display: grid;
+  gap: 0.5rem;
+  grid-template-columns: 1fr 1fr;
+  margin-bottom: 0.75rem;
+}
+
+.chat-panel {
+  min-height: 16rem;
+}
+
+.chat-log {
+  background: #f7f2e8;
+  border-radius: 6px;
+  height: 12rem;
+  overflow: auto;
+  padding: 0.6rem;
+}
+
+.chat-line {
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+.chat-line.system {
+  color: #6b5d49;
+}
+
+.chat-form {
+  display: grid;
+  gap: 0.5rem;
+  grid-template-columns: 1fr auto;
+  margin-top: 0.6rem;
+}
+
+.board-area {
+  min-width: 0;
+}
+
+.game-summary {
+  align-items: center;
+  display: flex;
+  gap: 1rem;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+}
+
+.game-summary span {
+  color: #5d5146;
+  margin-left: 0.75rem;
+}
+
+.message-line {
+  background: #fffdf8;
+  border: 1px solid #d2c7b4;
+  border-radius: 8px;
+  margin-bottom: 0.75rem;
+  min-height: 2.4rem;
+  padding: 0.6rem 0.8rem;
+}
+
+.board {
+  --board-size: 19;
+  aspect-ratio: 1;
+  background:
+    linear-gradient(#7d6040 1px, transparent 1px),
+    linear-gradient(90deg, #7d6040 1px, transparent 1px),
+    #d6a35f;
+  background-size:
+    calc(100% / var(--board-size)) calc(100% / var(--board-size)),
+    calc(100% / var(--board-size)) calc(100% / var(--board-size));
+  border: 2px solid #6a4a28;
+  display: grid;
+  gap: 0;
+  grid-template-columns: repeat(var(--board-size), 1fr);
+  max-height: calc(100vh - 12rem);
+  max-width: min(100%, calc(100vh - 12rem));
+  min-height: 20rem;
+  position: relative;
+}
+
+.cell {
+  align-items: center;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  display: flex;
+  justify-content: center;
+  min-height: 0;
+  padding: 0;
+  position: relative;
+}
+
+.cell:hover {
+  background: rgb(255 255 255 / 0.18);
+}
+
+.cell::before {
+  border-radius: 999px;
+  content: "";
+  height: 72%;
+  width: 72%;
+}
+
+.cell.black::before {
+  background: radial-gradient(circle at 35% 30%, #555, #050505 68%);
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.5);
+}
+
+.cell.white::before {
+  background: radial-gradient(circle at 35% 30%, #fff, #d9d9d9 70%);
+  border: 1px solid #b0b0b0;
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.3);
+}
+
+.cell.last::after {
+  border: 2px solid #db2a1f;
+  border-radius: 999px;
+  content: "";
+  height: 34%;
+  position: absolute;
+  width: 34%;
+}
+
+.move-log {
+  color: #4d463e;
+  display: grid;
+  gap: 0.25rem;
+  grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+  margin-top: 0.75rem;
+}
+
+@media (max-width: 860px) {
+  .topbar,
+  .layout {
+    display: grid;
+  }
+
+  .connection,
+  .layout {
+    grid-template-columns: 1fr;
+  }
+
+  .board {
+    max-height: none;
+    max-width: 100%;
+    min-height: auto;
+  }
+}
