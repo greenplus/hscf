@@ -225,23 +225,23 @@ input {
   position: absolute;
 }
 
-.board-line {
-  background: #6f4f2b;
-  position: absolute;
+.board-grid svg {
+  display: block;
+  height: 100%;
+  overflow: visible;
+  width: 100%;
 }
 
-.board-line.vertical {
-  bottom: 0;
-  top: 0;
-  transform: translateX(-0.5px);
-  width: 1px;
+.board-grid line {
+  shape-rendering: geometricPrecision;
+  stroke: #6f4f2b;
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
 }
 
-.board-line.horizontal {
-  height: 1px;
-  left: 0;
-  right: 0;
-  transform: translateY(-0.5px);
+.star-point {
+  fill: #111;
+  stroke: none;
 }
 
 .cell {
@@ -303,11 +303,17 @@ input {
 }
 
 .move-log {
+  background: #fffdf8;
+  border: 1px solid #d2c7b4;
+  border-radius: 8px;
   color: #4d463e;
   display: grid;
   gap: 0.25rem;
-  grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(5.8rem, 1fr));
   margin-top: 0.75rem;
+  max-height: 9rem;
+  overflow: auto;
+  padding: 0.55rem;
 }
 
 @media (max-width: 860px) {

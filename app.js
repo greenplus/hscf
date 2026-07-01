@@ -1,4 +1,4 @@
-import {createOnlineClient} from "./online_client.js?v=20260701-3";
+import {createOnlineClient} from "./online_client.js?v=20260701-4";
 
 const $ = (selector) => document.querySelector(selector);
 
@@ -60,6 +60,10 @@ function useDoubleClickPlacement() {
 
 function pointKey(row, col) {
   return `${row},${col}`;
+}
+
+function createSvgElement(name) {
+  return document.createElementNS("http://www.w3.org/2000/svg", name);
 }
 
 function setMessage(message) {
@@ -150,16 +154,35 @@ function renderBoard(game = latestGame) {
 
   const grid = document.createElement("div");
   grid.className = "board-grid";
+  const svg = createSvgElement("svg");
+  svg.setAttribute("viewBox", "0 0 1000 1000");
+  svg.setAttribute("preserveAspectRatio", "none");
+  svg.setAttribute("aria-hidden", "true");
   for (let index = 0; index < size; index += 1) {
-    const position = `${(index / (size - 1)) * 100}%`;
-    const vertical = document.createElement("span");
-    vertical.className = "board-line vertical";
-    vertical.style.left = position;
-    const horizontal = document.createElement("span");
-    horizontal.className = "board-line horizontal";
-    horizontal.style.top = position;
-    grid.append(vertical, horizontal);
+    const position = String((index / (size - 1)) * 1000);
+    const vertical = createSvgElement("line");
+    vertical.setAttribute("x1", position);
+    vertical.setAttribute("y1", "0");
+    vertical.setAttribute("x2", position);
+    vertical.setAttribute("y2", "1000");
+    const horizontal = createSvgElement("line");
+    horizontal.setAttribute("x1", "0");
+    horizontal.setAttribute("y1", position);
+    horizontal.setAttribute("x2", "1000");
+    horizontal.setAttribute("y2", position);
+    svg.append(vertical, horizontal);
   }
+  for (const row of [3, 9, 15]) {
+    for (const col of [3, 9, 15]) {
+      const star = createSvgElement("circle");
+      star.setAttribute("cx", String((col / (size - 1)) * 1000));
+      star.setAttribute("cy", String((row / (size - 1)) * 1000));
+      star.setAttribute("r", "8");
+      star.classList.add("star-point");
+      svg.append(star);
+    }
+  }
+  grid.append(svg);
 
   const points = document.createElement("div");
   points.className = "board-points";
@@ -230,10 +253,10 @@ function renderGame(msg) {
 
   const moves = game?.moves || [];
   els.moveLog.replaceChildren();
-  for (const move of moves.slice(-8).reverse()) {
+  for (const move of moves) {
     const line = document.createElement("div");
-    const capturedText = move.captured?.length ? ` / 取り ${move.captured.length}` : "";
-    line.textContent = `${move.move_number}. ${move.player_name} ${colorLabel[move.color]} (${move.row + 1}, ${move.col + 1})${capturedText}`;
+    const capturedText = move.captured?.length ? ` 取${move.captured.length}` : "";
+    line.textContent = `${move.move_number}. ${colorLabel[move.color]} ${move.row + 1},${move.col + 1}${capturedText}`;
     els.moveLog.append(line);
   }
 }
