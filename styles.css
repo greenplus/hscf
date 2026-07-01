@@ -65,8 +65,8 @@ input {
   align-items: end;
   display: grid;
   gap: 0.75rem;
-  grid-template-columns: minmax(9rem, 14rem) auto;
-  width: min(100%, 22rem);
+  grid-template-columns: minmax(9rem, 14rem);
+  width: min(100%, 14rem);
 }
 
 .connection label {

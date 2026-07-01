@@ -1,11 +1,10 @@
-import {createOnlineClient} from "./online_client.js";
+import {createOnlineClient} from "./online_client.js?v=20260701-3";
 
 const $ = (selector) => document.querySelector(selector);
 
 const els = {
   connectionStatus: $("#connectionStatus"),
   nameInput: $("#nameInput"),
-  connectButton: $("#connectButton"),
   doubleClickToggle: $("#doubleClickToggle"),
   refreshRoomsButton: $("#refreshRoomsButton"),
   roomList: $("#roomList"),
@@ -38,6 +37,8 @@ let latestGame = null;
 let latestRoomStatus = null;
 let myPrivateState = {};
 let pendingPoint = null;
+let reconnectTimer = null;
+let reconnectDelay = 1000;
 
 function isLocalEnvironment() {
   if (location.hostname === "localhost" || location.hostname === "127.0.0.1") {
@@ -63,6 +64,24 @@ function pointKey(row, col) {
 
 function setMessage(message) {
   els.messageLine.textContent = message;
+}
+
+function websocketIsActive() {
+  const ws = client?.state?.ws;
+  return ws && (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING);
+}
+
+function scheduleReconnect(message = "サーバーへ再接続しています。") {
+  if (reconnectTimer || websocketIsActive()) {
+    return;
+  }
+  els.connectionStatus.textContent = "再接続中";
+  setMessage(message);
+  reconnectTimer = window.setTimeout(() => {
+    reconnectTimer = null;
+    connect();
+    reconnectDelay = Math.min(reconnectDelay * 1.6, 10000);
+  }, reconnectDelay);
 }
 
 function appendChat(sender, message) {
@@ -220,11 +239,23 @@ function renderGame(msg) {
 }
 
 function connect() {
+  if (websocketIsActive()) {
+    return;
+  }
+
+  if (reconnectTimer) {
+    window.clearTimeout(reconnectTimer);
+    reconnectTimer = null;
+  }
+
   const url = defaultWsUrl();
+  els.connectionStatus.textContent = "接続中";
+  setMessage("サーバーへ接続しています。");
   client = createOnlineClient({
     url,
     renderers: {
       connected() {
+        reconnectDelay = 1000;
         els.connectionStatus.textContent = "接続済み";
         setMessage("部屋を選んでください。");
         const name = els.nameInput.value.trim();
@@ -232,10 +263,14 @@ function connect() {
       },
       connectionClosed(message) {
         els.connectionStatus.textContent = "未接続";
-        setMessage(message);
+        latestRoomStatus = null;
+        myPrivateState = {};
+        pendingPoint = null;
+        els.playerList.replaceChildren();
+        scheduleReconnect(message);
       },
       connectionError(message) {
-        setMessage(message);
+        scheduleReconnect(message);
       },
       nameSet(msg) {
         els.nameInput.value = msg.name;
@@ -291,8 +326,8 @@ function connect() {
 
 els.doubleClickToggle.checked = localStorage.getItem(DOUBLE_CLICK_STORAGE_KEY) !== "false";
 renderBoard({board_size: 19, board: Array.from({length: 19}, () => Array(19).fill(null))});
+connect();
 
-els.connectButton.addEventListener("click", connect);
 els.refreshRoomsButton.addEventListener("click", () => client?.refreshRooms());
 els.leaveRoomButton.addEventListener("click", () => {
   client?.leaveRoom();
